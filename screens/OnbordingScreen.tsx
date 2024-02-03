@@ -1,88 +1,24 @@
-import React, { useState } from "react";
-import { StyleSheet } from "react-native";
-import { TextInput, Surface, Button } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import React from "react";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { useSignUp } from "@clerk/clerk-expo";
-import textInputStyle from "../styles/textInput";
-import buttonStyle from "../styles/button";
-import { SafeAreaView } from "react-native";
+import { Surface, TextInput, Text, Button } from "react-native-paper";
 
 interface NavigationProps {
-  navigation: NativeStackNavigationProp<RootStackParamList, "OnboardingScreen">;
+  navigation: NativeStackNavigationProp<RootStackParamList, "OtpScreen">;
 }
 
-export default function OnbordingScreen({ navigation }: NavigationProps) {
-  const { isLoaded, signUp, setActive } = useSignUp();
-  const [firstName, setFirstName] = React.useState("");
-  const [lastName, setLastName] = React.useState("");
-  const [emailAddress, setEmailAddress] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [pendingVerification, setPendingVerification] = React.useState(false);
-  const [code, setCode] = React.useState("");
-
-  const handlePress = async () => {
-    navigation.navigate("HomeScreen");
-    // if (!isLoaded) {
-    //   return;
-    // }
-
-    // try {
-    //   const data = await signUp.create({
-    //     firstName,
-    //     lastName,
-    //     emailAddress,
-    //     password,
-    //   });
-
-    //   console.log(data);
-    // } catch (err: any) {
-    //   console.error(JSON.stringify(err, null, 2));
-    // }
-  };
-
+export default function OtpScreen({ navigation }: NavigationProps) {
   return (
     <Surface style={styles.container}>
       <TextInput
+        style={styles.textInput}
         mode="outlined"
-        label="Enter First Name"
-        value={firstName}
-        onChangeText={(text) => setFirstName(text)}
-        style={textInputStyle.textInputStyle}
-        outlineStyle={textInputStyle.outlineStyle}
+        outlineStyle={styles.textInputOutline}
+        keyboardType="numeric"
+        maxLength={4}
+        selectionColor="#4a4a4a"
       />
-      <TextInput
-        mode="outlined"
-        label="Enter Last Name"
-        value={lastName}
-        onChangeText={(text) => setLastName(text)}
-        style={textInputStyle.textInputStyle}
-        outlineStyle={textInputStyle.outlineStyle}
-      />
-      <TextInput
-        mode="outlined"
-        label="Enter Email"
-        value={emailAddress}
-        onChangeText={(text) => setEmailAddress(text)}
-        style={textInputStyle.textInputStyle}
-        outlineStyle={textInputStyle.outlineStyle}
-      />
-      <TextInput
-        mode="outlined"
-        label="Enter Password"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        style={textInputStyle.textInputStyle}
-        outlineStyle={textInputStyle.outlineStyle}
-        secureTextEntry
-      />
-      <Button
-        onPress={handlePress}
-        mode="contained"
-        style={buttonStyle.buttonStyle}
-      >
-        Submit
-      </Button>
     </Surface>
   );
 }
@@ -90,5 +26,18 @@ export default function OnbordingScreen({ navigation }: NavigationProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
+  },
+  textInput: {
+    backgroundColor: "transparent",
+    textAlign: "center",
+    width: 100,
+    marginTop: 200,
+  },
+  textInputOutline: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderRadius: 0,
+    borderColor: "#231212",
   },
 });
