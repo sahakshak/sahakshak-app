@@ -40,7 +40,7 @@ export default function App() {
             <Stack.Screen
               name="HomeScreen"
               component={HomeScreen}
-              options={{ title: "Welcome to Sahayak", ...options }}
+              options={{ title: "Welcome to Sahakshak", ...options }}
             />
             <Stack.Screen
               name="OnboardingScreen"

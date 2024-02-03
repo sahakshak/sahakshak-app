@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
-import { TextInput, Button } from "react-native-paper";
+import { TextInput, Button, HelperText, Menu } from "react-native-paper";
 import CaseInterface from "../interface/case.interface";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
@@ -15,6 +15,19 @@ interface NavigationProps {
 
 const ReportScreen = ({ navigation }: NavigationProps) => {
   const [caseData, setCaseData] = useState<CaseInterface>(emptyCase);
+  const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
+  const [genderMenuVisible, setGenderMenuVisible] = useState<boolean>(false);
+
+  const handleGenderSelect = (gender: string) => {
+    setGenderMenuVisible(false);
+
+    // Update the case data with the selected gender
+    handleInputChange("gender", gender);
+  };
+
+
+
+  const genderOptions = ["Male", "Female", "Other"];
 
   const handleInputChange = (
     field: keyof CaseInterface,
@@ -24,23 +37,53 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
       ...caseData,
       [field]: value,
     });
+
+    // Clear validation error for the current field when it's being edited
+    setValidationErrors({
+      ...validationErrors,
+      [field]: false,
+    });
   };
 
   const handleSubmit = async () => {
-    navigation.navigate("OtpScreen");
+    // Check if required fields are empty
+    const requiredFields = ["title", "description", "name", "gender", "age", "phoneNumber", "email", "address", "pinCode"];
+    const errors: Record<string, boolean> = {};
 
-    // try {
-    //   const response = await axios.post(
-    //     "https://sahakshak-backend.vercel.app/api/cases",
-    //     caseData
-    //   );
+    requiredFields.forEach((field) => {
+      if (!caseData[field]) {
+        errors[field] = true;
+      }
+    });
 
-    //   if (response.status === 201) {
-    //     navigation.navigate("OtpScreen");
-    //   }
-    // } catch (error) {
-    //   console.error("Error:", error.response);
-    // }
+    // Update validation errors state
+    setValidationErrors(errors);
+
+    // If any required field is empty, stop form submission
+    if (Object.values(errors).some((error) => error)) {
+      return;
+    }
+
+    // Continue with navigation to OtpScreen
+    // navigation.navigate("OtpScreen");
+
+    try {
+      const response = await fetch("http://172.105.54.189:4000/api/cases", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(caseData),
+      });
+
+      if (response.status === 201) {
+        navigation.navigate("OtpScreen");
+      } else {
+        console.error("Error: Unexpected response status", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -53,6 +96,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         style={textInputStyle.textInputStyle}
         outlineStyle={textInputStyle.outlineStyle}
       />
+      <HelperText type="error" visible={validationErrors["title"]}>
+        Title is required
+      </HelperText>
+
       <TextInput
         mode="outlined"
         label="Description"
@@ -61,6 +108,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         style={textInputStyle.textInputStyle}
         outlineStyle={textInputStyle.outlineStyle}
       />
+      <HelperText type="error" visible={validationErrors["description"]}>
+        Description is required
+      </HelperText>
+
       <TextInput
         label="Name"
         mode="outlined"
@@ -69,6 +120,32 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         style={textInputStyle.textInputStyle}
         outlineStyle={textInputStyle.outlineStyle}
       />
+      <HelperText type="error" visible={validationErrors["name"]}>
+        Name is required
+      </HelperText>
+
+      <Menu
+        visible={genderMenuVisible}
+        onDismiss={() => setGenderMenuVisible(false)}
+        anchor={
+          <Button
+            mode="outlined"
+            onPress={() => setGenderMenuVisible(true)}
+            style={textInputStyle.textInputStyle}
+          >
+            {caseData.gender || "Select Gender"}
+          </Button>
+        }
+      >
+        {genderOptions.map((option) => (
+          <Menu.Item key={option} onPress={() => handleGenderSelect(option)} title={option} />
+        ))}
+      </Menu>
+      <HelperText type="error" visible={validationErrors["gender"]}>
+        Gender is required
+      </HelperText>
+
+
       <TextInput
         mode="outlined"
         label="Age"
@@ -78,6 +155,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
         keyboardType="numeric"
       />
+      <HelperText type="error" visible={validationErrors["age"]}>
+        Age is required
+      </HelperText>
+
       <TextInput
         label="Phone Number"
         mode="outlined"
@@ -87,6 +168,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
         keyboardType="phone-pad"
       />
+      <HelperText type="error" visible={validationErrors["phoneNumber"]}>
+        Phone Number is required
+      </HelperText>
+
       <TextInput
         label="Email"
         mode="outlined"
@@ -96,6 +181,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
         keyboardType="email-address"
       />
+      <HelperText type="error" visible={validationErrors["email"]}>
+        Email is required
+      </HelperText>
+
       <TextInput
         mode="outlined"
         label="Address"
@@ -104,6 +193,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
         onChangeText={(value) => handleInputChange("address", value)}
       />
+      <HelperText type="error" visible={validationErrors["address"]}>
+        Address is required
+      </HelperText>
+
       <TextInput
         mode="outlined"
         label="Pin Code"
@@ -113,6 +206,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
         keyboardType="numeric"
       />
+      <HelperText type="error" visible={validationErrors["pinCode"]}>
+        Pin Code is required
+      </HelperText>
+
       <TextInput
         label="Time of Crime(DD/MM/YYYY)"
         mode="outlined"
@@ -134,6 +231,7 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         style={textInputStyle.textInputStyle}
         outlineStyle={textInputStyle.outlineStyle}
       />
+
       <Button
         mode="contained"
         onPress={handleSubmit}
