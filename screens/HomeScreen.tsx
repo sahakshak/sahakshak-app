@@ -1,8 +1,8 @@
-import { StyleSheet, View } from "react-native";
 import React from "react";
+import { StyleSheet, View } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { Surface, Text, TouchableRipple } from "react-native-paper";
+import { Surface, Text, TouchableRipple, Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 interface NavigationProps {
@@ -10,6 +10,10 @@ interface NavigationProps {
 }
 
 export default function HomeScreen({ navigation }: NavigationProps) {
+
+  const handlePress = async () => {
+    navigation.navigate('VotesScreen');
+  }
   return (
     <Surface style={styles.container}>
       <Text variant="headlineSmall" style={styles.heading}>
@@ -17,8 +21,8 @@ export default function HomeScreen({ navigation }: NavigationProps) {
       </Text>
       {options.map((item) => (
         <TouchableRipple
-          onPress={() => navigation.navigate(item.screenName)}
           key={item.screenName}
+          onPress={() => navigation.navigate(item.screenName)}
           style={styles.optionRippleContainer}
         >
           <View style={styles.optionsContainer}>
@@ -27,16 +31,23 @@ export default function HomeScreen({ navigation }: NavigationProps) {
           </View>
         </TouchableRipple>
       ))}
+      <Button
+        mode="contained"
+        onPress={handlePress}
+        style={styles.votesButton}
+      >
+        Votes
+      </Button>
     </Surface>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
   optionsContainer: {
     padding: 12,
-    paddingStart: 16,
-    paddingEnd: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -49,6 +60,11 @@ const styles = StyleSheet.create({
   },
   heading: {
     padding: 12,
+  },
+  votesButton: {
+    margin: 16,
+    borderRadius: 12,
+    backgroundColor: "#000",
   },
 });
 

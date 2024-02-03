@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import { TextInput, Surface, Button } from "react-native-paper";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
-import { useSignUp } from "@clerk/clerk-expo";
+//import { useSignUp } from "@clerk/clerk-expo";
 import textInputStyle from "../styles/textInput";
 import buttonStyle from "../styles/button";
 import { SafeAreaView } from "react-native";
@@ -13,7 +13,6 @@ interface NavigationProps {
 }
 
 export default function OnbordingScreen({ navigation }: NavigationProps) {
-  const { isLoaded, signUp, setActive } = useSignUp();
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
