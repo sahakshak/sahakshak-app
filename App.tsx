@@ -9,6 +9,7 @@ import ReportScreen from "./screens/ReportScreen";
 import VoteScreen from "./screens/VotesScreen";
 //import { ClerkProvider } from "@clerk/clerk-expo";
 import Constants from "expo-constants";
+import SuccessScreen from "./screens/SuccessScreen";
 // import TopAppBar from "./components/TopAppBar";
 
 type RootStackParamList = {
@@ -18,6 +19,7 @@ type RootStackParamList = {
   DashboardScreen: undefined;
   ReportScreen: undefined;
   VotesScreen: undefined;
+  SuccessScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator();
@@ -67,6 +69,11 @@ export default function App() {
               options={{ title: "Votes", ...options }}
             />
           </Stack.Navigator>
+          <Stack.Screen
+            name="SuccessScreen"
+            component={SuccessScreen}
+            options={{ ...options }}
+          />
         </NavigationContainer>
       </PaperProvider>
     </>

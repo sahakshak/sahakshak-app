@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Modal, View } from "react-native";
 import { TextInput, Button, HelperText, Menu } from "react-native-paper";
 import CaseInterface from "../interface/case.interface";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,6 +8,7 @@ import { StyleSheet } from "react-native";
 import { emptyCase } from "../utils/emptyCase";
 import textInputStyle from "../styles/textInput";
 import buttonStyle from "../styles/button";
+import SuccessScreen from "./SuccessScreen";
 
 interface NavigationProps {
   navigation: NativeStackNavigationProp<RootStackParamList, "ReportScreen">;
@@ -17,6 +18,10 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
   const [caseData, setCaseData] = useState<CaseInterface>(emptyCase);
   const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
   const [genderMenuVisible, setGenderMenuVisible] = useState<boolean>(false);
+  const [otpModalVisible, setOtpModalVisible] = useState<boolean>(false);
+  const [otp, setOtp] = useState<string>("");
+  const [data, setData] = useState<String>("");
+  const [otpError, setOtpError] = useState<boolean>(false);
 
   const handleGenderSelect = (gender: string) => {
     setGenderMenuVisible(false);
@@ -65,16 +70,50 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
     }
 
     try {
+      const response = await fetch("http://10.0.2.2:4000/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: caseData.email }),
+      });
+
+
+      if (response.ok) {
+        setOtpModalVisible(true);
+        const responseData = await response.json();
+        setData(String(responseData.otp));
+        console.log(data);
+      } else {
+        console.error("Error: Unexpected response status", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    console.log("Button clicked")
+    console.log(data)
+    if (data !== otp) {
+      setOtpError(true);
+      console.log("otp not equal");
+      return;
+    }
+    try {
       const response = await fetch("http://172.105.54.189:4000/api/cases", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(caseData),
+        body: JSON.stringify({
+          ...caseData,
+        }),
       });
 
-      if (response.status === 201) {
-        navigation.navigate("OtpScreen");
+      if (response.ok) {
+        navigation.navigate('HomeScreen');
+        console.log("Success");
       } else {
         console.error("Error: Unexpected response status", response.status);
       }
@@ -229,6 +268,37 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
         outlineStyle={textInputStyle.outlineStyle}
       />
 
+      <Modal
+        visible={otpModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setOtpModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TextInput
+              label="Enter OTP"
+              mode="outlined"
+              value={otp}
+              onChangeText={(value) => setOtp(value)}
+              style={textInputStyle.textInputStyle}
+              outlineStyle={textInputStyle.outlineStyle}
+              keyboardType="numeric"
+            />
+            <HelperText type="error" visible={otpError}>
+              Incorrect OTP
+            </HelperText>
+            <Button
+              mode="contained"
+              onPress={handleOtpSubmit}
+              style={buttonStyle.buttonStyle}
+            >
+              Submit OTP
+            </Button>
+          </View>
+        </View>
+      </Modal>
+
       <Button
         mode="contained"
         onPress={handleSubmit}
@@ -248,4 +318,20 @@ const styles = StyleSheet.create({
     marginStart: 12,
     marginEnd: 12,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+    height: 400,
+    width: 300,
+    justifyContent: "center", // Center vertically
+    alignItems: "center",     // Center horizontally
+  },
 });
+
