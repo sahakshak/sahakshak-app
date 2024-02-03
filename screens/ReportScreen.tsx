@@ -64,9 +64,6 @@ const ReportScreen = ({ navigation }: NavigationProps) => {
       return;
     }
 
-    // Continue with navigation to OtpScreen
-    // navigation.navigate("OtpScreen");
-
     try {
       const response = await fetch("http://172.105.54.189:4000/api/cases", {
         method: "POST",
